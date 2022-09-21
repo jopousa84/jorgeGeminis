@@ -20,6 +20,32 @@ public class ClientService {
 	@Autowired
 	ClientDAO clientDAO;
 	
+	public String customerAdds() {
+		
+		Client cliente = new Client();
+		
+		cliente.setAddress("13 St 1954");
+		cliente.setName("Jorge");
+		cliente.setSurname("Perez");
+		cliente.setPhone("5491134567890");
+		cliente.setEmail("jorge@hotmail.com");
+		clientDAO.save(cliente);
+		
+		Client cliente2 = new Client();
+		cliente2.setAddress("Montgomery St 954");
+		cliente2.setName("Mario");
+		cliente2.setSurname("Gomez");
+		cliente2.setPhone("5491134567897");
+		cliente2.setEmail("mario@hotmail.com");
+		clientDAO.save(cliente2);
+		
+		String resp = "Added customers " + cliente.getCustomerId() + " and " + cliente2.getCustomerId();
+		
+		return resp;
+	}
+	
+	
+	
 	public ClientInfoDTO getCustomerAccountInformation(Long customerId) {
 		Client client = clientDAO.getById(customerId);
 		ClientInfoDTO clientInfo = new ClientInfoDTO();

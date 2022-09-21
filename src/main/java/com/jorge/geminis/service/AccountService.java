@@ -3,7 +3,6 @@ package com.jorge.geminis.service;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,29 +25,6 @@ public class AccountService {
 	AccountDAO accountDAO;
 	@Autowired
 	TransactionDAO transactionDAO;
-
-
-	// add customers
-	@PostConstruct
-	public void customerAdds() {
-		
-		Client cliente = new Client();
-		
-		cliente.setAddress("13 St 1954");
-		cliente.setName("Jorge");
-		cliente.setSurname("Perez");
-		cliente.setPhone("5491134567890");
-		cliente.setEmail("jorge@hotmail.com");
-		clientDAO.save(cliente);
-		
-		Client cliente2 = new Client();
-		cliente2.setAddress("Montgomery St 954");
-		cliente2.setName("Mario");
-		cliente2.setSurname("Gomez");
-		cliente2.setPhone("5491134567897");
-		cliente2.setEmail("mario@hotmail.com");
-		clientDAO.save(cliente2);
-	}
 
 
 	@Transactional

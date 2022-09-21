@@ -1,31 +1,20 @@
+To start the database:
+docker-compose up -d (in the directory with docker-compose.yml)
 
-To run application:
+database=jdbc:postgresql://localhost:5434/rabo
+username=rabo
+password=rabo1234
+
+
+To run the application:
 mvnw spring-boot:run
+(runs on port 8480)
 
 
-Two clients added on @PostConstruct
-1: Jorge
-2: Mario
+Documentaion / OpenApi links
+http://localhost:8480/v3/api-docs.yaml
+http://localhost:8480/swagger-ui/index.html
 
 
 web index:
 http://localhost:8480/index.html
-
-
-h2:
-http://localhost:8480/h2-console/
-
-
-curl --request POST \
-  --url http://localhost:8480/addAccount \
-  --header 'Content-Type: application/json' \
-  --data '{
-	"customerId": 1,
-	"initialCredit": 1785.97
-}'
-
-
-curl --request GET \
-  --url http://localhost:8480/clientInfo/1 \
-  --header 'Content-Type: application/json'
-

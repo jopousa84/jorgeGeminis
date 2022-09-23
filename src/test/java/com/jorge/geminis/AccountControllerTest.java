@@ -15,7 +15,10 @@ import java.math.BigDecimal;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +39,7 @@ import com.jorge.geminis.model.Client;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@TestInstance(Lifecycle.PER_CLASS)
 public class AccountControllerTest {
 
 	@Autowired
@@ -51,9 +55,10 @@ public class AccountControllerTest {
 	@Autowired
     private ObjectMapper objectMapper;
 	
+	private Long newCustomerId;
 	
-	
-	Long addClient() {
+	@BeforeAll
+	void addClient() {
 		
 		Client cliente = new Client();		
 		cliente.setAddress("13 St 1954");
@@ -63,7 +68,8 @@ public class AccountControllerTest {
 		cliente.setEmail("jorge@hotmail.com");
 		clientDAO.save(cliente);
 		
-		return cliente.getCustomerId();
+		// we create a customer and save the id in customer ID
+		newCustomerId = cliente.getCustomerId();
 	}
 
 
@@ -71,10 +77,9 @@ public class AccountControllerTest {
 	@Transactional
 	void addAccountTest() {
 		
-		Long clientId = addClient();
 		BigDecimal initCredit = new BigDecimal(20.70);		
 		
-		AddAccountDTO account = new AddAccountDTO(clientId, initCredit);
+		AddAccountDTO account = new AddAccountDTO(newCustomerId, initCredit);
 		
 		AddAccountDTOResponse response = acountController.addAccount(account);		
 
@@ -88,11 +93,9 @@ public class AccountControllerTest {
 		
 		BigDecimal initCredit = new BigDecimal(20.70);
 		
-		// in memory database just created, client won't exist 
-		AddAccountDTO account = new AddAccountDTO(1895L, initCredit);
-		
-		account.setInitialCredit(initCredit);
-		
+		// customer id + 1 won't exist 
+		AddAccountDTO account = new AddAccountDTO(newCustomerId + 1, initCredit);
+				
 		assertThrows(EntityNotFoundException.class,
 			()->{
 				acountController.addAccount(account);
@@ -103,12 +106,10 @@ public class AccountControllerTest {
 	@Test
 	void integrationAddSearch() throws JsonProcessingException, Exception {
 		
-		Long clientId = addClient();
-		
 		// will use this value later to compare the result
 		BigDecimal initCredit = new BigDecimal(20.70);
 		
-		AddAccountDTO addAccountDTO = new AddAccountDTO(clientId, initCredit);
+		AddAccountDTO addAccountDTO = new AddAccountDTO(newCustomerId, initCredit);
 
 		MvcResult response = mockMvc.perform(post("/addAccount")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,11 +119,11 @@ public class AccountControllerTest {
         
         Integer accountId = JsonPath.read(response.getResponse().getContentAsString(), "$.accountID");
         
-        String getClientInfo = "/clientInfo/"+ clientId;
+        String getClientInfo = "/clientInfo/"+ newCustomerId;
         ResultActions resp = mockMvc.perform(get(getClientInfo));
         
         resp.andDo(print())
-		        .andExpect(jsonPath("$.accounts[0].accountName", is(clientId + "-" + accountId)))
+		        .andExpect(jsonPath("$.accounts[0].accountName", is(newCustomerId + "-" + accountId)))
 		        .andExpect(jsonPath("$.accounts[0].balance", is(initCredit.doubleValue())));
 	}
 }
